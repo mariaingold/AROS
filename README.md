@@ -21,7 +21,7 @@ From (Ingold et al., 2023):
 | [GitHub](https://github.com/)                                 | Open-source version control system            |
 | [Visual Studio Code](https://code.visualstudio.com/)          | Free source code editor (works with GitHub)   |
 | [python](https://www.python.org/)                             | Programming language                          |
-| [pip](https://pypi.org/project/pip/)                          ! Python package installer                      |
+| [pip](https://pypi.org/project/pip/)                          | Python package installer                      |
 | [requests](https://pypi.org/project/requests/)                | HTTP requests                                 |
 | [Beautiful Soup 4](https://pypi.org/project/beautifulsoup4/)  | Web scraping and parse tree                   |
 | [pandas](https://pypi.org/project/pandas/)                    | Data structures and analysis                  |
