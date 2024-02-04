@@ -21,7 +21,7 @@ From (Ingold et al., 2023):
 | [GitHub](https://github.com/)                                 | Open-source version control system            |
 | [Visual Studio Code](https://code.visualstudio.com/)          | Free source code editor (works with GitHub)   |
 | [python](https://www.python.org/)                             | Programming language                          |
-! [pip](https://pypi.org/project/pip/)                          ! Python package installer                      |
+| [pip](https://pypi.org/project/pip/)                          ! Python package installer                      |
 | [requests](https://pypi.org/project/requests/)                | HTTP requests                                 |
 | [Beautiful Soup 4](https://pypi.org/project/beautifulsoup4/)  | Web scraping and parse tree                   |
 | [pandas](https://pypi.org/project/pandas/)                    | Data structures and analysis                  |
@@ -47,7 +47,9 @@ From (Ingold et al., 2023):
 * Limitations: Not modular. Only a single web page. Hardcoded URL. Limited data. No natural language processing. No user interface.
 ## Version 0.2: Modular, URL parameter, and now includes abstract
 ### Changes
-* Modularised: Added classes. Version 0.1 was all in one file. 
+* STEP 1: Move from a script to a class (modularity). Collects, extracts, transforms and stores citation data from an arXiv page. Created a single class as the process is simple, with only four methods. Instead of using separate classes for collect, extract, transform and store, they are each methods of the ArxivScraper class. This keeps it simple, but modular. 
+* STEP 2: Move from a hard-coded URL to a parameter (flexibility / reusability). Made the URL a parameter of the class, so that the class can be used to scrape any arXiv page. As this is now a class method, the URL can be a parameter of the method.
+* STEP 3: Add citation abstract (completeness / extensibility). Moving beyond the basic citation data (title, auther, date), the scraper also now extracts the paper's abstract. This better enables the scraper to be used as a simple reflex agent, responding to the existence of a keyword in the title or abstract.
 
 # REFERENCES
 * Abodayeh, A. et al. (2023) Web Scraping for Data Analytics: A BeautifulSoup Implementation, Proceedings - 2023 6th International Conference of Women in Data Science at Prince Sultan University, WiDS-PSU 2023  65–69. DOI: https://doi.org/10.1109/WIDS-PSU57071.2023.00025.
