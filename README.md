@@ -1,8 +1,8 @@
 # AROS
-AROS v 0.2  
-Academic Research Online System 
+AROS v 0.3  
+Academic Research Online System  
 Simple reflex agent web scraper  
-Scrapes a specific arxiv page for basic citation data and stores in a CSV file  
+Scrape specified arXiv pages for basic citation data, searche for keyword or phrase, and store results in a CSV file  
 Uses Python, requests, Beautiful Soup 4, Pandas   
 
 # AUTHOR: Maria Ingold
@@ -10,7 +10,16 @@ UoEO MSc AI Intelligent Agents Development Individual Assignment
 Assignment date: 12 February, 2024  
 
 # INSTRUCTIONS
-How to execute the code  
+## Installation 
+* Install [python](https://www.python.org/) 
+* To install libraries, first install [pip](https://pypi.org/project/pip/)
+To install librarires, run the following commands one at a time.  
+* pip install requests
+* pip install beautifulsoup4
+* pip install pandas
+## Run
+* Run python code in PowerShell terminal: * PS C:\ AROS.py
+* Manually change parameters in code. Can set: URL, keyword(s) and output file
 
 # TOOLS
 
@@ -50,14 +59,22 @@ From (Ingold et al., 2023):
 * STEP 1: Move from a script to a class (modularity). Collects, extracts, transforms and stores citation data from an arXiv page. Created a single class as the process is simple, with only four methods. Instead of using separate classes for collect, extract, transform and store, they are each methods of the ArxivScraper class. This keeps it simple, but modular. 
 * STEP 2: Move from a hard-coded URL to a parameter (flexibility / reusability). Made the URL a parameter of the class, so that the class can be used to scrape any arXiv page. As this is now a class method, the URL can be a parameter of the method.
 * STEP 3: Add citation abstract (completeness / extensibility). Moving beyond the basic citation data (title, auther, date), the scraper also now extracts the paper's abstract. This better enables the scraper to be used as a simple reflex agent, responding to the existence of a keyword in the title or abstract.
+## Version 0.3 Simple reflex agent
+### Overview
+* Create a simple reflex agent that responds to the existence of a keyword in the title or abstract.
+### Changes
+* STEP 1: Add a decide_relevance method to the ArxivScraper class.
+* STEP 2: Add a run method to the ArxivScraper class with a keyword parameter.
+* STEP 3: Change extract to only search for relevent data. Move dictionary to extract method.
 
 # REFERENCES
 * Abodayeh, A. et al. (2023) Web Scraping for Data Analytics: A BeautifulSoup Implementation, Proceedings - 2023 6th International Conference of Women in Data Science at Prince Sultan University, WiDS-PSU 2023  65–69. DOI: https://doi.org/10.1109/WIDS-PSU57071.2023.00025.
 * Amos, D. (2022) A Practical Introduction to Web Scraping in Python – Real Python. Available from: https://realpython.com/python-web-scraping-practical-introduction/ [Accessed 10 December 2023].
+* Breuss, M. (2022) How to Check if a Python String Contains a Substring. Available from: https://realpython.com/python-string-contains-substring/ [Accessed 5 February 2024].
 * Ingold, M., Grimal, C. & Alaskar, A. (2023) Intelligent Agents: Development Team Project Report. Available from: https://mariaingold.github.io/artefacts/2_IA_Team1_DevelopmentTeamProjectReport.pdf [Accessed 3 February 2024].
 * Khder, M.A. (2021) Web Scraping or Web Crawling: State of Art, Techniques, Approaches and Application, Int J Advance Soft Compu Appl  13(3). DOI: https://doi.org/10.15849/IJASCA.211128.11.
 * Nigam, H. & Biswas, P. (2021) Web Scraping: From Tools to Related Legislation and Implementation Using Python, Innovative Data Communication Technologies and Application  149–164. Available from: https://doi.org/10.1007/978-981-15-9651-3_13.
 * pandas (2024) pandas documentation. Available from: https://pandas.pydata.org/docs/index.html [Accessed 4 February 2024].
 * PyPi (N.D.) requests 2.31.0. Available from: https://pypi.org/project/requests/ [Accessed 4 February 2024].
 * Ramos, L.P. (2023) Python Classes: The Power of Object-Oriented Programming – Real Python. Available from: https://realpython.com/python-classes/#getting-started-with-python-classes [Accessed 4 February 2024].
- 
+* Stack Overflow (2016) Python : Web Scraping Specific Keywords. Available from: https://stackoverflow.com/questions/40121232/python-web-scraping-specific-keywords [Accessed 5 February 2024].
