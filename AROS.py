@@ -1,24 +1,32 @@
-# AROS v 0.3 (Academic Research Online System)
+# AROS v 0.4 (Academic Research Online System)
 # Simple reflex agent web scraper
-# Scrapes a specific arxiv page for basic citation data and stores in a CSV file
+# Scrapes a specific arXiv page for basic citation data. If a relevant keyword is found, it stores it in a CSV file
 # Uses Python, requests, Beautiful Soup 4, Pandas 
 # 
-# USAGE: python AROS_v0.3.py
-# INPUT: URL of the arXiv page to scrape (input into the ArxivScraper class instance)
-# OUTPUT: CSV file with the citation data 
+# Author: Maria Ingold
+# Built as part of UoEO MSc AI Intelligent Agents assignment
+# Date: 12 February 2023 (Assignment due date)
 #
+# USAGE: python AROS.py
+# INPUT: URL of the arXiv page to scrape (input into the ArxivScraper class instance)
+#        Keyword to decide relevance (input into ArxivScraper.run) 
+#        Filename for the output CSV file (input into ArxivScraper.run)
+# OUTPUT: CSV file with the citation data 
+# 
+# VERSION HISTORY: 
 # Version 0.1: A simple prototype script that collected, extracted, transformed and stored citation data from a hardcoded arXiv page.
 # Version 0.2: Increase modularity and flexibility with 3 changes:
 #   STEP 1: Move the script into a class, ArxivScraper, with methods to collect, extract, transform and store. 
 #   STEP 2: Move URL to a parameter. 
 #   STEP 3: Add abstract.
 # Version 0.3: Create a simple reflex agent that responds to the existence of a keyword in the title or abstract.
-#   STEP 1: Add a decide_relevance method to the ArxivScraper class.
-#   STEP 2: Add a run method to the ArxivScraper class with a keyword parameter.
-#   STEP 3: Change extract to only search for relevent data. Move dictionary to extract method.
-# Author: Maria Ingold
-# Built as part of UoEO MSc AI Intelligent Agents assignment
-# Date: 12 February 2023 (Assignment due date)
+#   STEP 1: Add decide_relevance method to the ArxivScraper class.
+#   STEP 2: Add run method to the ArxivScraper class with keyword and filename parameters.
+#   STEP 3: Change extract to only search for relevant data. Move dictionary to extract method.
+# Version 0.4: Add pytests unit tests for the ArxivScraper class, handling for multiple URLs and basic error handling.
+#   STEP 1: Add test_AROS.py which unit tests __init__, collect, extract, transform, store, decide_relevance, and run methods.
+#   STEP 2: Add capacity to test with more than one URL. 
+#   STEP 3: Add basic error handling.  
 
 import requests
 from bs4 import BeautifulSoup
@@ -35,21 +43,36 @@ import pandas as pd
 class ArxivScraper:
     # V0.2 STEP 1: Initialise the instance with the URL and sets the other variables to None
     # V0.3 STEP 2: Remove instance variables that are only used locally and make local instead. 
-    def __init__(self, url):
-        self.url = url                      # The URL of the arXiV page to scrape
-        self.page_content = None            # The content of the page being scraped  
-        self.data = None                    # The citation data as a dictionary (required for conversion to a Pandas DataFrame)
-        self.df = None                      # The citation data as a Pandas DataFrame
+    # V0.4 STEP 3: Pass a list of URLs instead of a single URL.
+    def __init__(self, urls):
+        self.urls = urls                        # The URL(S) of the arXiv page(s) to scrape
+        self.page_content = None                # The content of the page being scraped  
+        self.data = None                        # The citation data as a dictionary (required for conversion to a Pandas DataFrame)
+        self.df = None                          # The citation data as a Pandas DataFrame
 
     # COLLECT  
     # V0.1 STEP 1: COLLECT THE PAGE CONTENT (USING REQUESTS)
     # V0.2 STEP 2: MOVE FROM A HARD-CODED URL TO A PARAMETER (FLEXIBILITY / REUSABILITY) AND MAKE IT A CLASS METHOD (MODULARITY)
-    # Why Requests? It simplifes HTTP requests and it is less verbose and more intiutive than urllib. (Amos, 2022)
+    # V0.4 STEP 3: ADD BASIC ERROR HANDLING (ROBUSTNESS)
+    # Why Requests? It simplifies HTTP requests and it is less verbose and more intuitive than urllib. (Amos, 2022)
     # Why a URL parameter? So the class can simply scrape any arXiv page. As this is now a class method, the URL can be a parameter of the method.
     # Requests references: (Nigam & Biswas, 2021; Abodayeh et al., 2023; PyPi, N.D.)
-    def collect(self):
-        page = requests.get(self.url)       # Get the page content   
-        self.page_content = page.content    # Set the page content variable to the content of web page (in bytes)
+    # Error handling references: (W3 Schools, N.D.)
+    def collect(self, url):
+        #If the URL is not an arXiv page, return False
+        if not url.startswith("https://arxiv.org/abs/"):
+            print("Please enter a URL starting with 'https://arxiv.org/abs/'")
+            return False
+        # If this is an arXiv page, try to get the page content.
+        try: 
+            page = requests.get(url)            # Get the page content   
+            page.raise_for_status()             # Raise exception if the page content is not found
+        except requests.exceptions.RequestException as e:
+            print(f"{e}")
+            return False
+        else: 
+            self.page_content = page.content    # Set the page content variable to the content of web page (in bytes)
+            return True 
 
     # EXTRACT
     # V0.1 STEP 2: EXTRACT THE CITATION TITLE, AUTHOR, AND DATE (USING BEAUTIFULSOUP 4)
@@ -60,8 +83,8 @@ class ArxivScraper:
     # BeautifulSoup 4 references: (Khder, 2021; Amos, 2022; Abodayeh et al., 2023)       
     def extract(self):
         soup = BeautifulSoup(self.page_content, "html.parser") # Parse the webpage content
-        #print(soup.prettify())       # Print the HTML contents of the page
-        #print(soup.get_text())        # Print the text of the page
+        # print(soup.prettify())                # Print the HTML contents of the page
+        # print(soup.get_text())                # Print the text of the page
         # Extract the citation title
         meta_tag = soup.find("meta", attrs={"name": "citation_title"})                 
         title = meta_tag["content"] if meta_tag else "No meta title given"
@@ -109,21 +132,29 @@ class ArxivScraper:
 
     # RUN
     # V0.3 STEP 2: ADD MAIN LOGIC OF THE AGENT
+    # V0.4 STEP 2: HANDLE MULTIPLE URLS AND ADD ERROR HANDLING
     def run(self, keyword, filename):
-        self.collect()
-        self.extract()
-        print(f"Keyword: '{keyword}' in {self.url}") 
-        if self.decide_relevance(self.data["Title"], self.data["Abstract"], keyword):
-            print(f"Relevant!\nTitle: {self.data['Title']}\nDate: {self.data['Date']}\nAuthors: {self.data['Authors']}\nAbstract: {self.data['Abstract']}")
-            self.transform()
-            self.store(filename)
-        else:
-            print("Not relevant. No data stored.")
+        for url in self.urls:
+            print(f"\n*********** KEYWORD: '{keyword}' in {url}")
+            if self.collect(url):                # Collect the page content and check if there were no errors proceed.
+                self.extract()
+                if self.decide_relevance(self.data["Title"], self.data["Abstract"], keyword):
+                    print(f"Relevant!\nTitle: {self.data['Title']}\nDate: {self.data['Date']}\nAuthors: {self.data['Authors']}\nAbstract: {self.data['Abstract']}")
+                    self.transform()
+                    self.store(filename)
+                else:
+                    print("Not relevant. No data stored.")
 
 # USAGE
-# V0.2: ADD A CLASS INSTANCE AND CALL THE METHODS
-# V0.3: USE A RUN METHOD TO CALL THE METHODS 
-scraper = ArxivScraper("https://arxiv.org/abs/2109.00656")  # Create ArxivScraper class instance with URL parameter - will find
-# scraper = ArxivScraper("https://arxiv.org/abs/2402.01499")  # Create ArxivScraper class instance with URL parameter - won't find
-# scraper = ArxivScraper("https://arxiv.org/abs/2109")        # Create ArxivScraper class instance with URL parameter - won't find
-scraper.run("web scraping", "citation_data_0.6.csv")        # Run the scraper with a keyword and output filename
+# V0.2: ADD A CLASS INSTANCE AND CALL THE METHODS WITH URL PARAMETER
+# V0.3: USE A RUN METHOD TO CALL THE METHODS, WITH KEYWORD AND FILENAME PARAMETERS 
+# V0.4: ADD MULTIPLE URLS 
+# "https//mireality.co.uk": AROS only currently works with arXiv pages
+# "https://arxiv.org/abs/2109": incomplete URL parameter - returns 404 error
+# "https://arxiv.org/abs/2402.01499": won't find "web scraping" but will find "artificial intelligence"
+# "https://arxiv.org/abs/2109.00656": will find "web scraping" but won't find "artificial intelligence"
+
+urls = ["https://mireality.co.uk", "https://arxiv.org/abs/2109", "https://arxiv.org/abs/2402.01499", "https://arxiv.org/abs/2109.00656"] # Add more URLs as needed
+scraper = ArxivScraper(urls)                                        # Create ArxivScraper class instance with urls parameter
+scraper.run("web scraping", "citation_data_v0.4-1.csv")             # Run the scraper with a keyword and output filename - 2109.00656 will find "web scraping"
+scraper.run("artificial intelligence", "citation_data_v0.4-2.csv")  # Run the scraper with a keyword and output filename - 2402.01499 will find "artificial intelligence"
